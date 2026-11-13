@@ -1,0 +1,35 @@
+name: CI
+
+# Every Pull Request builds the image, checks the configuration and runs the
+# smoke checks against the running gateway (Annex F, Annex I).
+# Only Pull Requests into develop and qa (instructor's rule, git-conventions.md).
+
+on:
+  pull_request:
+    branches: [develop, qa]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  config-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -f deploy/Dockerfile -t gateway .
+      - name: The configuration is valid
+        run: docker run --rm gateway nginx -t
+      - name: Smoke checks
+        # A user-defined network, as in the platform: Docker's DNS answers there,
+        # and no service is running, so every route must answer 503 on its own.
+        run: |
+          docker network create platform
+          docker run -d --name gateway --network platform -p 8080:8080 gateway
+          sleep 2
+          sh tests/smoke.sh http://localhost:8080
