@@ -33,6 +33,7 @@ tests/smoke.sh                         the checks the gateway must pass
 | `/api/v1/propiedades` | `catalog-api:3002` | none — public |
 | `/api/v1/register`, `/api/v1/login`, `/api/v1/refresh`, `/api/v1/jwks` | `identity-api:3004` | none — public |
 | `/api/v1/logout`, `/api/v1/users` | `identity-api:3004` | required |
+| `/api/v1/users/{id}/contact` | nowhere: `404` | — internal route of Identity (E-26): only `notification-service` calls it inside `platform`, so the gateway hides it (DOC4, least privilege) |
 | `/api/v1/preferencias` | `notification-api:3005` | required |
 | `/health` | the gateway itself | none |
 

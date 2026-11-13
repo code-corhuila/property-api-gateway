@@ -31,6 +31,14 @@ for path in /api/v1/sagas/reservar /api/v1/reservas /api/v1/pagos/x /api/v1/pref
   check  "protected $path without a credential is 401" 401 "$BASE$path"
 done
 contains "401 uses the error envelope"             '"error":"UNAUTHORIZED"' "$BASE/api/v1/reservas"
+
+# E-26 is internal (DOC4): from outside it does not exist, with or without a credential.
+CONTACT=/api/v1/users/7c9e6679-7425-40de-944b-e07fc1f90ae7/contact
+check    "internal $CONTACT is 404"                404 "$BASE$CONTACT"
+check    "internal $CONTACT with a credential is 404" 404 -H 'Authorization: Bearer x' "$BASE$CONTACT"
+contains "its 404 uses the error envelope"         '"error":"NOT_FOUND"' -H 'Authorization: Bearer x' "$BASE$CONTACT"
+check    "with a trailing slash it is 404 too"     404 -H 'Authorization: Bearer x' "$BASE$CONTACT/"
+check    "the other /users routes reach Identity (down: 503)" 503 -H 'Authorization: Bearer x' "$BASE/api/v1/users/me"
 contains "401 carries the traceId it received"     '"traceId":"smoke-401"' -H 'X-Correlation-Id: smoke-401' "$BASE/api/v1/reservas"
 
 for path in /api/v1/propiedades /api/v1/register /api/v1/refresh /api/v1/jwks; do
