@@ -1,0 +1,18 @@
+# The single entry point. It is the only service that publishes a port to the host.
+# property-infra-postgres includes this file to compose the platform.
+
+services:
+  api-gateway:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    environment:
+      # The origin of property-front allowed by CORS.
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:4200}
+    ports: ["8080:8080"]
+    networks: [platform]
+
+networks:
+  platform:
+    name: platform
+    external: true

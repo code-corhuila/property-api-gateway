@@ -1,0 +1,8 @@
+# CORS: only the origin of the container application, property-front
+# (api-gateway.yaml). It comes from the variable CORS_ALLOWED_ORIGIN, written in
+# here by the nginx image when the container starts. Any other origin gets no
+# Access-Control-Allow-Origin. Never '*' together with credentials.
+map $http_origin $cors_origin {
+    default                   "";
+    "${CORS_ALLOWED_ORIGIN}"  $http_origin;
+}
